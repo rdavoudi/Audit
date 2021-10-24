@@ -1,11 +1,14 @@
 ﻿using Audit.Data;
 using Audit.Models.Common;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace Audit.Services
@@ -21,7 +24,11 @@ namespace Audit.Services
             services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<MyDbContext>());
 
             services.AddDbContext<MyDbContext>(options =>
-                options.UseSqlServer(siteSettings.ConnectionStrings));
+                options.UseSqlServer(siteSettings.ConnectionString.AuditableConnectionStrings));
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //services.AddScoped<IPrincipal>(provider =>
+            //    provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
 
             return services;
 
